@@ -1,0 +1,131 @@
+HOME                    = .
+RANDFILE                = $ENV::HOME/.rnd
+
+####################################################################
+[ ca ]
+default_ca              = CA_default
+
+[ CA_default ]
+# Directory and file locations
+dir                     = ./ca
+certs                   = $dir/certs
+crl_dir                 = $dir/crl
+new_certs_dir           = $dir/newcerts
+database                = $dir/index.txt
+serial                  = $dir/serial
+RANDFILE                = $dir/private/.rnd
+
+# Root CA certificate and key
+private_key             = $dir/private/ca.key
+certificate             = $dir/certs/ca.crt
+
+# CRL configuration
+crlnumber               = $dir/crlnumber
+crl                     = $dir/crl/ca.crl
+crl_extensions          = crl_ext
+default_crl_days        = 30
+
+# Default settings
+default_md              = sha256
+name_opt                = ca_default
+cert_opt                = ca_default
+default_days            = 365
+preserve                = no
+policy                  = policy_loose
+
+[ policy_strict ]
+# Policy for CA certificates
+countryName             = match
+stateOrProvinceName     = match
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ policy_loose ]
+# Policy for service certificates
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits            = 2048
+distinguished_name      = req_distinguished_name
+string_mask             = utf8only
+default_md              = sha256
+x509_extensions         = v3_ca
+
+[ req_distinguished_name ]
+countryName                     = Country Name (2 letter code)
+stateOrProvinceName             = State or Province Name
+localityName                    = Locality Name
+0.organizationName              = Organization Name
+organizationalUnitName          = Organizational Unit Name
+commonName                      = Common Name
+emailAddress                    = Email Address
+
+# Default values (based on Assignment requirements)
+countryName_default             = PT
+stateOrProvinceName_default     = Coimbra
+localityName_default            = Coimbra
+0.organizationName_default      = UC
+organizationalUnitName_default  = DEI-CC
+emailAddress_default            = admin@cc.dei.uc.pt
+
+[ v3_ca ]
+# Extensions for CA root certificate (Lab 03 - Section 4.2)
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ v3_intermediate_ca ]
+# Extensions for intermediate CA
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ server_cert ]
+# Extensions for server certificates (Lab 04 - PostgreSQL, Lab 09 - VPN)
+basicConstraints = CA:FALSE
+nsCertType = server
+nsComment = "OpenSSL Generated Server Certificate - Assignment2 CC"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+
+[ client_cert ]
+# Extensions for client certificates (Lab 04 - PostgreSQL, Lab 08 - EAP-TLS)
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "OpenSSL Generated Client Certificate - Assignment2 CC"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, emailProtection
+
+[ crl_ext ]
+# CRL extensions (Lab 03 - Section 4.7)
+authorityKeyIdentifier=keyid:always
+
+[ ocsp ]
+# OCSP Signing extensions (Lab 03 - Section 4.6)
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, OCSPSigning
+
+[ radius_cert ]
+# Extensions for RADIUS/EAP-TLS certificates (Lab 08)
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
